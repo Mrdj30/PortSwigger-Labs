@@ -5,7 +5,7 @@
 ---
 
 ## 🎯 Objective
-Exploit a URL normalization discrepancy between the origin server and cache to steal Carlos's API key.
+The origin server normalizes encoded dot-segments in URLs. Exploit this to cache Carlos's account page under a `/resources/` path and steal his API key.
 
 ---
 
@@ -14,63 +14,79 @@ Exploit a URL normalization discrepancy between the origin server and cache to s
 ### Step 1 — Login to wiener account
 Credentials: `wiener:peter`
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step1-login.png`
 
 ---
 
 ### Step 2 — Intercept and send to Repeater
-Intercept `GET /my-account` and send to **Repeater**.
+Intercept `GET /my-account` → send to **Repeater**.
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step2-repeater.png`
 
 ---
 
 ### Step 3 — Test path handling
 Try these URLs:
-- `/my-account/abc` → **404 Not Found**
-- `/my-accountabc` → **404 Not Found**
+```
+GET /my-account/abc   → 404 Not Found
+GET /my-accountabc    → 404 Not Found
+```
 
-> 📸 Add screenshot here
-
----
-
-### Step 4 — Test delimiters via Intruder
-Use **Sniper attack** with delimiters after `/my-account`. Uncheck URL-encode.
-
-Result: only `?` returns **200 OK**.
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step3-404.png`
 
 ---
 
-### Step 5 — Test URL normalization
-Try: `/aaa/..%2fmy-account`
+### Step 4 — Find working delimiter via Intruder
+Send to **Intruder** → Sniper attack with delimiters after `/my-account`.
+Uncheck URL-encode.
 
-If the origin server resolves this encoded dot-segment and returns `200 OK` with your account data — normalization is happening on the origin side.
+Result: Only `?` returns **200 OK**.
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step4-delimiter.png`
+
+---
+
+### Step 5 — Test URL normalization on origin
+Try the encoded dot-segment path:
+```
+GET /aaa/..%2fmy-account
+```
+Origin server resolves this to `/my-account` → returns **200 OK** with your account data and API key.
+
+This confirms the **origin server** normalizes `..%2f`.
+
+> 📸 Screenshot: `./screenshots/step5-normalization.png`
 
 ---
 
 ### Step 6 — Identify cache rules
-Test: `/resources/anything`
-- 1st request → **X-Cache: miss**
-- 2nd request → **X-Cache: hit**
+Test paths under `/resources/`:
+```
+GET /resources/anything
+```
+- 1st request → `X-Cache: miss`
+- 2nd request → `X-Cache: hit` ✅
 
-The cache stores anything under `/resources/`.
+Cache stores responses for any path starting with `/resources/`.
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step6-cache-miss.png`
+> 📸 Screenshot: `./screenshots/step6-cache-hit.png`
 
 ---
 
-### Step 7 — Combine the exploit
-Try: `GET /resources/..%2fmy-account`
-- 1st request → miss
-- 2nd request → **hit** ✅
+### Step 7 — Combine: exploit cache + normalization mismatch
+Try:
+```
+GET /resources/..%2fmy-account
+```
+- Cache sees `/resources/...` → stores it (matches cache rule)
+- Origin normalizes `..%2f` → serves `/my-account` content
 
-Origin resolves it to `/my-account` (returns user data), but cache stores it because the path starts with `/resources/`.
+- 1st request → `X-Cache: miss`
+- 2nd request → `X-Cache: hit` ✅
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step7-miss.png`
+> 📸 Screenshot: `./screenshots/step7-hit.png`
 
 ---
 
@@ -85,16 +101,19 @@ On exploit server, paste:
 
 Store → Deliver to victim.
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step8-exploit.png`
 
 ---
 
-### Step 9 — Access Carlos's API key
-Request `/resources/..%2fmy-account?wcd` in Repeater. The cached response contains **Carlos's API key**.
+### Step 9 — Get Carlos's API key
+In Repeater, request:
+```
+GET /resources/..%2fmy-account?wcd
+```
+The cached response contains **Carlos's API key**. Submit it to solve the lab.
 
-Submit it to solve the lab.
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step9-api.png`
+> 📸 Screenshot: `./screenshots/step9-solved.png`
 
 ---
 
@@ -104,4 +123,4 @@ Lab solved!
 ---
 
 ## 💡 Key Takeaway
-When the origin server normalizes encoded path segments but the cache does not, attackers can craft URLs that the cache treats as static resources but the origin resolves to sensitive endpoints.
+When the origin server normalizes encoded path segments but the cache does not, attackers craft URLs the cache treats as static but the origin resolves to sensitive endpoints.

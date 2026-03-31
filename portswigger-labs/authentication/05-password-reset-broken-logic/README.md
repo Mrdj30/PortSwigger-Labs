@@ -5,47 +5,67 @@
 ---
 
 ## 🎯 Objective
-Exploit broken password reset logic to reset Carlos's password and login to his account.
+The password reset mechanism trusts the `username` from the POST body instead of binding it to the reset token server-side. Exploit this to reset Carlos's password and login to his account.
 
 ---
 
 ## 🪜 Steps
 
-### Step 1 — Trigger password reset for yourself
-Use the "Forgot password" feature for `wiener`. Check your email for the reset link.
+### Step 1 — Trigger password reset for your account
+Go to: **Forgot password?**
+Enter: `wiener` → Click **Email client** → Open the reset link.
 
-> 📸 Add screenshot here
-
----
-
-### Step 2 — Intercept the reset request
-Click the reset link and intercept the POST request that submits the new password.
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step1-forgot.png`
 
 ---
 
-### Step 3 — Inspect the parameters
-Look at the POST body. You'll see something like:
+### Step 2 — Capture the reset request
+Enter a new password for your account and click Submit.
+
+Go to **Burp → Proxy → HTTP history**.
+Find the request:
 ```
-temp-forgot-password-token=TOKEN&username=wiener&new-password-1=test&new-password-2=test
+POST /forgot-password?temp-forgot-password-token=XXXX
 ```
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step2-reset-request.png`
 
 ---
 
-### Step 4 — Change username to carlos
-In Burp Repeater, change `username=wiener` to `username=carlos` and forward the request.
-
-> 📸 Add screenshot here
+### Step 3 — Send to Repeater
+Right-click → **Send to Repeater**.
 
 ---
 
-### Step 5 — Login as Carlos
-Use `carlos` with the new password you just set.
+### Step 4 — Break the logic
+In Repeater, look at the POST body:
+```
+temp-forgot-password-token=XXXX&username=wiener&new-password-1=test&new-password-2=test
+```
 
-> 📸 Add screenshot here
+Make two changes:
+1. Clear the token: `temp-forgot-password-token=`
+2. Change username: `username=carlos`
+
+> 📸 Screenshot: `./screenshots/step4-modify.png`
+
+---
+
+### Step 5 — Send the request
+Click **Send**.
+
+If response is **200 OK** → the attack worked. Carlos's password is now set to whatever you put in `new-password-1`.
+
+> 📸 Screenshot: `./screenshots/step5-200ok.png`
+
+---
+
+### Step 6 — Login as Carlos
+Use:
+- Username: `carlos`
+- Password: *(whatever you set in step 4)*
+
+> 📸 Screenshot: `./screenshots/step6-solved.png`
 
 ---
 
@@ -55,4 +75,4 @@ Lab solved!
 ---
 
 ## 💡 Key Takeaway
-Password reset tokens must be tied to a specific user server-side. If the username is trusted from the POST body instead of the token, attackers can reset any account's password.
+Password reset tokens must be cryptographically bound to a specific user server-side. Never trust the username from the POST body — always derive it from the validated token.

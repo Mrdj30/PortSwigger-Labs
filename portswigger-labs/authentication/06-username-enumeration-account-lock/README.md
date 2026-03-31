@@ -5,51 +5,67 @@
 ---
 
 ## 🎯 Objective
-Use account lockout behavior as an oracle to enumerate valid usernames, then brute-force the password when the lock expires.
+Use account lockout as an oracle to enumerate a valid username. Then brute-force the password once the lockout expires.
 
 ---
 
 ## 🪜 Steps
 
-### Step 1 — Capture login request
-Intercept the POST login and send to **Intruder**.
+### Step 1 — Try login with a random username and password
+Submit a login attempt to capture the request.
 
-> 📸 Add screenshot here
-
----
-
-### Step 2 — Send each username multiple times
-Use **Cluster Bomb** attack or null payload to send the same username 5 times in a row.
-
-If the account gets locked → the username is valid (a lockout error only appears for real accounts).
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step1-login.png`
 
 ---
 
-### Step 3 — Identify the locked account
-Sort by response length or look for `"You have made too many incorrect login attempts"` — that username is valid.
+### Step 2 — Intercept and send to Intruder
+Capture the `POST /login` request → send to **Intruder**.
 
-> 📸 Add screenshot here
-
----
-
-### Step 4 — Wait for lockout to expire
-Wait ~1 minute for the account to unlock, then brute-force the password.
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step2-intruder.png`
 
 ---
 
-### Step 5 — Brute-force password
-Run Intruder with the valid username fixed, and password wordlist. Look for a response that doesn't say "too many attempts" and returns `302`.
+### Step 3 — Configure Cluster Bomb attack
+- Attack type: **Cluster Bomb**
+- Add payload positions on both `username` and `password`
 
-> 📸 Add screenshot here
+**Payload 1 (username):** PortSwigger username wordlist
+
+**Payload 2 (password):** Null payload — set to generate 5 identical attempts per username
+(This sends each username 5 times to trigger lockout on valid accounts)
+
+> 📸 Screenshot: `./screenshots/step3-clusterbomb.png`
 
 ---
 
-### Step 6 — Login as Carlos
-> 📸 Add screenshot here
+### Step 4 — Start the attack
+Run the attack.
+
+For valid usernames, after 5 attempts you'll see the response:
+```
+"You have made too many incorrect login attempts. Please try again in 1 minute(s)."
+```
+
+Invalid usernames just return the normal error. Sort by **response length** — the locked account stands out.
+
+**Found username: `agent`**
+
+> 📸 Screenshot: `./screenshots/step4-lockout.png`
+
+---
+
+### Step 5 — Login as victim
+Wait ~1 minute for the lockout to expire. Then brute-force the password with username fixed as `agent`.
+
+Run a new Sniper attack with the password wordlist. Look for a `302` or a response without the lockout message.
+
+**Found password: `princess`**
+
+Login with:
+- Username: `agent`
+- Password: `princess`
+
+> 📸 Screenshot: `./screenshots/step5-solved.png`
 
 ---
 
@@ -59,4 +75,4 @@ Lab solved!
 ---
 
 ## 💡 Key Takeaway
-Account lockout — while useful — can be abused as an enumeration oracle. Lock all accounts after N attempts (even non-existent ones) to prevent this leak.
+Account lockout — while a useful defense — reveals which usernames exist if it only triggers for real accounts. Apply lockout behavior equally for all usernames (even non-existent ones) to prevent this enumeration oracle.

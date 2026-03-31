@@ -5,50 +5,57 @@
 ---
 
 ## 🎯 Objective
-Enumerate a valid username by looking at different error messages in login responses, then brute-force the password.
+Enumerate a valid username by spotting different error messages in login responses, then brute-force the password to login as that user.
 
 ---
 
 ## 🪜 Steps
 
-### Step 1 — Capture login request
-Submit any login attempt and intercept the POST request in Burp.
+### Step 1 — Investigate the login page
+Submit an invalid username and password. Observe the error message.
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step1-login.png`
 
 ---
 
 ### Step 2 — Send to Intruder
-Send the request to **Intruder**. Set payload position on the username field.
+Intercept the `POST /login` request → send to **Intruder**.
 
-Use **Sniper attack** with PortSwigger's username wordlist.
-
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step2-intruder.png`
 
 ---
 
-### Step 3 — Find valid username
-When a username is valid, the response message changes from `"Invalid username"` to `"Incorrect password"`.
+### Step 3 — Enumerate username with Sniper attack
+- Attack type: **Sniper**
+- Payload position: on the `username` parameter
+- Payload: PortSwigger username wordlist
 
-Sort by **response length** or look for the different message.
+Start the attack. Look for a response where the message changes from `"Invalid username"` to `"Incorrect password"` — that's the valid username.
 
-> 📸 Add screenshot here
+**Found username: `ao`**
+
+> 📸 Screenshot: `./screenshots/step3-username-found.png`
 
 ---
 
 ### Step 4 — Brute-force the password
-Now set the found username as fixed, and brute-force the password field using the password wordlist.
+Set the username to `ao` (fixed). Now set payload position on the `password` field.
+- Payload: PortSwigger password wordlist
 
-Look for a `302 redirect` or shorter response.
+Run another Sniper attack. Look for a **302 redirect** or a different response length.
 
-> 📸 Add screenshot here
+**Found password: `123456`**
+
+> 📸 Screenshot: `./screenshots/step4-password-found.png`
 
 ---
 
-### Step 5 — Login
-Use the found credentials to login as Carlos.
+### Step 5 — Login as Carlos
+Use the found credentials:
+- Username: `ao`
+- Password: `123456`
 
-> 📸 Add screenshot here
+> 📸 Screenshot: `./screenshots/step5-solved.png`
 
 ---
 
@@ -58,4 +65,4 @@ Lab solved!
 ---
 
 ## 💡 Key Takeaway
-Different error messages for invalid username vs wrong password leak which usernames exist. Always return a generic `"Incorrect username or password"` message.
+Different error messages for invalid username vs wrong password leak which usernames exist. Always use a single generic response: `"Incorrect username or password"` for all failed login attempts.

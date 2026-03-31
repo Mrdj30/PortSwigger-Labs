@@ -10,7 +10,7 @@
 |---|-------|------|------|
 | 1 | 🔴 Web Cache Deception | 4 labs | [web-cache-deception/](./web-cache-deception/) |
 | 2 | 🟠 WebSockets Vulnerabilities | 3 labs | [websockets/](./websockets/) |
-| 3 | 🟡 Authentication Vulnerabilities | 6 labs | [authentication/](./authentication/) |
+| 3 | 🟡 Authentication Vulnerabilities | 8 labs | [authentication/](./authentication/) |
 
 > 🔄 More topics coming soon: SSRF, SQL Injection, XSS, CSRF...
 
@@ -26,9 +26,9 @@
 
 ## 🧭 How to Navigate
 
-Each topic has its own folder. Inside every topic folder:
+Each topic has its own folder. Inside each topic:
 - A `README.md` explaining the topic
-- Subfolders for each lab with a step-by-step solution
+- Subfolders for each lab with a full step-by-step solution
 
 ---
 

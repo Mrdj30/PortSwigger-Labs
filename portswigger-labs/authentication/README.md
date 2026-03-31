@@ -16,3 +16,5 @@ Authentication flaws allow attackers to bypass login mechanisms, brute-force cre
 | 4 | [Broken brute-force protection, IP block](./04-broken-brute-force-ip-block/) | ✅ Solved |
 | 5 | [Password reset broken logic](./05-password-reset-broken-logic/) | ✅ Solved |
 | 6 | [Username enumeration via account lock](./06-username-enumeration-account-lock/) | ✅ Solved |
+| 7 | [2FA broken logic](./07-2fa-broken-logic/) | ✅ Solved |
+| 8 | [Password brute-force via password change](./08-password-brute-force-via-password-change/) | ✅ Solved |
