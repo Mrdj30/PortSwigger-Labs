@@ -10,9 +10,10 @@
 |---|-------|------|------|
 | 1 | 🔴 Web Cache Deception | 4 labs | [web-cache-deception/](./web-cache-deception/) |
 | 2 | 🟠 WebSockets Vulnerabilities | 3 labs | [websockets/](./websockets/) |
-| 3 | 🟡 Authentication Vulnerabilities | 8 labs | [authentication/](./authentication/) |
+| 3 | 🟡 Authentication Vulnerabilities | 14 labs | [authentication/](./authentication/) |
+| 4 | 🔵 Server-Side Request Forgery (SSRF) | 3 labs | [ssrf/](./ssrf/) |
 
-> 🔄 More topics coming soon: SSRF, SQL Injection, XSS, CSRF...
+> 🔄 More topics coming soon: SQL Injection, XSS, CSRF...
 
 ---
 
@@ -21,6 +22,7 @@
 - **Burp Suite** (Proxy, Repeater, Intruder, Collaborator)
 - **Browser** (Firefox / Chrome)
 - **PortSwigger Exploit Server**
+- **CrackStation** (MD5 cracking)
 
 ---
 
@@ -28,7 +30,7 @@
 
 Each topic has its own folder. Inside each topic:
 - A `README.md` explaining the topic
-- Subfolders for each lab with a full step-by-step solution
+- Subfolders for each lab with a full step-by-step solution + screenshots
 
 ---
 
