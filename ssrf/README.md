@@ -13,3 +13,5 @@ SSRF tricks the server into making HTTP requests on your behalf — to internal 
 | 1 | [Basic SSRF against the local server](./01-basic-ssrf-local-server/) | ✅ Solved |
 | 2 | [Basic SSRF against another back-end system](./02-basic-ssrf-backend-system/) | ✅ Solved |
 | 3 | [SSRF with blacklist-based input filter](./03-ssrf-blacklist-bypass/) | ✅ Solved |
+| 4 | [SSRF with filter bypass via open redirection](./04-ssrf-open-redirection-bypass/) | ✅ Solved |
+| 5 | [Blind SSRF with out-of-band detection](./05-blind-ssrf-out-of-band/) | ✅ Solved |
