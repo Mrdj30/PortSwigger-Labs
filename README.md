@@ -1,36 +1,35 @@
-# 🔐 PortSwigger Web Security Academy — Lab Writeups
+# 📁 PortSwigger — File Upload Vulnerabilities
 
 > by [Mrdj30](https://github.com/Mrdj30) · Hands-on security research using Burp Suite
 
 ---
 
-## 📚 Topics
+## 📚 Labs
 
-| # | Topic | Labs | Link |
-|---|-------|------|------|
-| 1 | 🔴 Web Cache Deception | 4 labs | [web-cache-deception/](./web-cache-deception/) |
-| 2 | 🟠 WebSockets Vulnerabilities | 3 labs | [websockets/](./websockets/) |
-| 3 | 🟡 Authentication Vulnerabilities | 14 labs | [authentication/](./authentication/) |
-| 4 | 🔵 Server-Side Request Forgery (SSRF) | 3 labs | [ssrf/](./ssrf/) |
+| # | Lab | Status |
+|---|-----|--------|
+| 1 | [Remote Code Execution via Avatar Upload](./file-upload-vulnerabilities/01-rce-via-avatar-upload/) | ✅ Solved |
+| 2 | [Web Shell Upload via Content-Type Restriction Bypass](./file-upload-vulnerabilities/02-content-type-restriction-bypass/) | ✅ Solved |
+| 3 | [Web Shell Upload via Path Traversal](./file-upload-vulnerabilities/03-path-traversal-bypass/) | ✅ Solved |
 
-> 🔄 More topics coming soon: SQL Injection, XSS, CSRF...
+---
+
+## 🧠 What are File Upload Vulnerabilities?
+
+File upload vulnerabilities occur when a web server allows users to upload files without properly validating the filename, type, contents, or size. Attackers exploit this to upload malicious files — most critically PHP web shells — which can then be executed to achieve Remote Code Execution (RCE).
+
+**Key attack vectors covered:**
+- Direct PHP web shell upload (no validation)
+- Content-Type header spoofing
+- Path traversal in filename (`../exploit.php`)
 
 ---
 
 ## 🛠️ Tools Used
 
-- **Burp Suite** (Proxy, Repeater, Intruder, Collaborator)
-- **Browser** (Firefox / Chrome)
-- **PortSwigger Exploit Server**
-- **CrackStation** (MD5 cracking)
-
----
-
-## 🧭 How to Navigate
-
-Each topic has its own folder. Inside each topic:
-- A `README.md` explaining the topic
-- Subfolders for each lab with a full step-by-step solution + screenshots
+- **Burp Suite** (Proxy, Repeater)
+- **PHP web shell** (`<?php echo file_get_contents('/home/carlos/secret'); ?>`)
+- **Browser**
 
 ---
 
